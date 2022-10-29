@@ -27,7 +27,6 @@ const int h0_len = 2;
 const int h1_len = 2;
 
 // Extra (no need to handle these)
-
 float x_ext[output_len];
 float final_output[x_len];
 float temp[x_len];
@@ -53,8 +52,8 @@ void mode1(float *x, int x_len, float *x_ext, int output_len, int tb);
  */
 void mode1(float *x, int x_len, float *x_ext, int output_len) {
   // x=[fliplr(x(:,1+tb:ext+tb)),x,fliplr(x(:,x_len-ext+1-tb:x_len-tb))];
-  float left[1]; 
-  float right[1];
+  float left[ext]; 
+  float right[ext];
   int tb = remainder(h0_len, 2);
 
   int X = tb;
@@ -135,8 +134,8 @@ void lphdec(float *arr, int lphdec_len, float *output, int output_len, int mode)
   
   int len = trunc((lphdec_len+1)/2);
 
-  float xl_i[2];
-  float xh_i[2];
+  float xl_i[h0_len];
+  float xh_i[h1_len];
     
   
   for (int i = 0; i < len; i++) {
@@ -178,7 +177,7 @@ void dwt1d(int maxlevel) {
   float output[output_len];
 
   // Copy over the input signal
-  for (size_t i = 0; i < x_len; i++) {
+  for (int i = 0; i < x_len; i++) {
     output[i] = x[i];
   }
   
@@ -189,7 +188,7 @@ void dwt1d(int maxlevel) {
   // Iterate for maxlevel times
   for (int i = 0; i < 2; i++) {
     // Simulates the slice operation
-    for (size_t i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++) {
       temp[i] = output[i];
     }
     
