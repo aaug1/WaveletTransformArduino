@@ -4,21 +4,24 @@
 // Input parameters:
 // Signal handling
 const int x_len = 12;
+const int output_len = 12; // ext + x_len + ext;
 const int xlh_len = 6; // trunc((10+1)/2);
-float x[x_len] = { 1, 1, 1, 1, 1, 1,1,1 ,1,1,1,1};
+const int ext = 0; //trunc( max(h0_len, h1_len)/2.0);
+// float x[x_len] = { 1, 1, 1, 1, 1, 1,1,1 ,1,1,1,1, 1, 1, 1, 1, 1, 1,1,1 ,1,1,1,1};
+// float x[x_len] = { 1, 2,3,4,5,6,7,8,9,10,11,12};
 float xl [xlh_len];
 float xh [xlh_len];
-
 // Filter specifics
 float h0[] = { 1 - sqrt(3)};
 float h1[] = { -1/sqrt(2)};
 const int h0_len = 1;
 const int h1_len = 1;
-int ext = trunc( max(h0_len, h1_len)/2.0);;
+
+// Extra (no need to handle these)
 float tb = remainder(h0_len, 2);
 
-// Extra (for methods)
-float output[x_len];
+float x_ext[output_len];
+float final_output[output_len];
 float temp[x_len];
 
 // Bring definitions to top, for c++ compiler reasons
@@ -35,8 +38,8 @@ void loop() {
   dwt1d(2);
 
   Serial.println("output");
-  printArray(output);
-  delay(5000);
+  printArray(final_output);
+  delay(1000);
 }
 
 
@@ -51,10 +54,10 @@ void loop() {
  * @param ext how much to extend array by; extension size
  * @param tb change extension type for EE- or OO-FB
  */
-void mode1(float *x, int x_len, int ext, int tb) {
+void mode1(float *x, int x_len, float *x_ext, int output_len, int tb) {
   // x=[fliplr(x(:,1+tb:ext+tb)),x,fliplr(x(:,x_len-ext+1-tb:x_len-tb))];
-  float left[1]; 
-  float right[1];
+  float left[ext + 1]; 
+  float right[ext + 1];
 
   int X = tb;
   int Y = ext+tb;
@@ -68,6 +71,19 @@ void mode1(float *x, int x_len, int ext, int tb) {
   }
   fliplr(left); // has length ext
   fliplr(right);
+
+  // copy output into a new x_ext vector
+  for (int i = 0; i < ext; i++) {
+    x_ext[i] = left[i];
+  }
+ 
+  for (int i = 0; i < x_len; i++) {
+    x_ext[i+ext] = x[i];
+  }
+  
+  for (int i = 0; i < ext; i++) {
+    x_ext[i+2*ext] = right[i];
+  }
 
 }
 
@@ -93,9 +109,9 @@ void mode1(float *x, int x_len, int ext, int tb) {
  *        1 - symmetric extension
  *        2 - circular convolution
  */
-void lphdec(float *arr, int lphdec_len, int mode) {
+void lphdec(float *arr, int lphdec_len, float *output, int output_len, int mode) {
   if (mode == 1) {
-    mode1(arr, lphdec_len, ext, tb);
+    mode1(arr, lphdec_len, output, output_len, tb);
   }
 
 //  } else if (mode == 2) {
@@ -122,19 +138,20 @@ void lphdec(float *arr, int lphdec_len, int mode) {
   float xl_i[h0_len];
   float xh_i[h1_len];
 
+  
   for (int i = 0; i < len; i++) {
+    // Slicing
     X = k1-1;
     Y = k1+h0_len-1;
     for (size_t i = 0; i < (Y - X + 1); i++) {
-      xl_i[i] = arr[i + X];
+      xl_i[i] = output[i + X];
     }
     X = k2-1;
     Y = k2+h1_len-1;
     for (size_t i = 0; i < (Y - X + 1); i++) {
-      xh_i[i] = arr[i + X];
+      xh_i[i] = output[i + X];
     }
-//    slicing(ok, lphdec_len, xl_i, k1-1, k1+h0_ord-1);
-//    slicing(ok, lphdec_len, xh_i, k2-1, k2+h1_ord-1);
+    // Updating values
     xl[i] = vectorMultiply(xl_i, h0);
     xh[i] = vectorMultiply(xh_i, h1);
     k1+=2;
@@ -149,7 +166,7 @@ void lphdec(float *arr, int lphdec_len, int mode) {
  * @param maxlevel 
  */
 void dwt1d(int maxlevel) {
-  output[x_len];
+  float output[x_len];
 
   // Copy over the input signal
   for (size_t i = 0; i < x_len; i++) {
@@ -168,7 +185,7 @@ void dwt1d(int maxlevel) {
     }
    
     // Get xl and xh based on temp
-    lphdec(temp, n, 1);
+    lphdec(temp, n, output, output_len, 1);
 
     for (int i = 0; i < len; i++) {
       output[i] = xl[i];
@@ -180,6 +197,11 @@ void dwt1d(int maxlevel) {
     n=n/2;
     len = trunc((n+1)/2);
 
+  }
+
+    // Copy over the input signal
+  for (size_t i = 0; i < output_len; i++) {
+    final_output[i] = output[i];
   }
   
 
