@@ -21,6 +21,13 @@ Credit to Arik Slepyan for the project proposal!
 ### Folder descriptions
 Please download the wavelet_transform_all repository to run the code. The other file contains code written in PlatformIO, but was used primarily for testing purposes.
 
+### Development notes for the future!
+1. **Dynamic Memory Allocation** It is important to remember that smaller programmable devices such as the Arduino or Teensy have limited memory. Dynamically allocating too much memory, i.e., through a vector data structure, can lead to buggy performance.
+2.**Globally scoped values** This was mentioned previously in CSF, but altering globally scoped values can lead to buggy behavior. I believe this especially has to do with how registers work
+3. **Be smart about your time** Definitely have a tendency to complete tasks in order, but sometimes that will not be feasible / wise. Make sure to plan your time
+4. **Writing code in c++** is a much better idea than just trying to write complicated code on Arduino, especially for beginners, as you can much more easily test code
+5. **Passing Arrays** You have to be careful about doing this, especially because it can lead to strange behavior. Sometimes its better to initialize them globally for Arduino, and other times you should pass by reference. Passing by value will potentially cause problems though.
+
 
 ### Testing
 To make sure code is running properly, paste the following in setup(), Make sure the correct output appears on the serial monitor as you would expect
