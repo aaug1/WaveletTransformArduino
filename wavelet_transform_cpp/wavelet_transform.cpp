@@ -146,7 +146,6 @@ void lphdec(float *arr, int lphdec_len, float *output, int output_len, int mode)
     for (int i = 0; i < (Y - X); i++) {
       xl_i[i] = (output[i + X]);
     }
-    cout << endl;
     X = k2-1;
     Y = k2+h1_len-1;
     for (int i = 0; i < (Y - X); i++) {
@@ -163,7 +162,6 @@ void lphdec(float *arr, int lphdec_len, float *output, int output_len, int mode)
     for (int i = 0; i < 2; i++) {
       output += xh_i[i] * h1[i];
     }
-    cout << "i is: " << i << endl;
     xh[i] = output;
     k1+=2;
     k2+=2;
@@ -195,7 +193,6 @@ void dwt1d(int maxlevel) {
       temp[i] = output[i];
     }
     
-   
     // Get xl and xh based on temp
     lphdec(temp, n, output, nextlen, 1);
 
@@ -206,7 +203,6 @@ void dwt1d(int maxlevel) {
       output[i+len] = xh[i];
     }
     
-
     // Copy over the input signal
     for (int i = 0; i < n; i++) {
       final_output[i] = output[i];
@@ -215,17 +211,12 @@ void dwt1d(int maxlevel) {
     n=n/2;
     nextlen=n + 2 * ext;
     len = trunc((n+1)/2);
-    printArray(output);
-
   }
-
-  
-
 }
 
 // Put setup code here, to run before:
 int main() {
   dwt1d(2);
-  cout << "got to dwt finshed completely " << endl;
+  cout << "The final discrete WT: " << endl;
   printArray(final_output);
 }
