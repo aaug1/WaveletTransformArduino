@@ -2,24 +2,28 @@
 #include "math.h"
 
 // Input parameters:
+// Filter specifics
+float h0[] = { 1/sqrt(2), 1/sqrt(2)};
+float h1[] = { -1/sqrt(2), 1/sqrt(2)};
+const int h0_len = sizeof(h0)/sizeof(h0[0]);
+const int h1_len =  sizeof(h1)/sizeof(h1[0]);
+
 // Signal handling
 const int x_len = 16;
-const int output_len = 18; // ext + x_len + ext;
-const int xlh_len = 8; // trunc((x_len+1)/2);
-const int ext = 1; //trunc( max(h0_len, h1_len)/2.0);
-// float x[x_len] = { 1, 1, 1, 1, 1, 1,1,1 ,1,1,1,1 ,1,1,1,1};
-// float x[x_len] = { 1, 2,3,4,5,6,7,8,9,10,11,12};
-float x[x_len] = { 0, M_PI/8, 2*M_PI/8, 3*M_PI/8,
+const int ext = trunc( max(h0_len, h1_len)/2.0);
+const int output_len = x_len + 2*ext; // ext + x_len + ext;
+const int xlh_len = trunc((x_len+1)/2);
+float x1[x_len] = { 1, 1, 1, 1, 1, 1, 1, 1,
+                    1, 1, 1, 1, 1, 1, 1, 1};
+float x[x_len] = { 1, 2, 3, 4, 5, 6, 7, 8,
+                    9, 10, 11, 12, 13, 14, 15, 16};
+float x3[x_len] = { 0, M_PI/8, 2*M_PI/8, 3*M_PI/8,
                   4*M_PI/8, 5*M_PI/8, 6*M_PI/8, 7*M_PI/8,
                   8*M_PI/8, 9*M_PI/8, 10*M_PI/8, 11*M_PI/8,
                   12*M_PI/8, 13*M_PI/8, 14*M_PI/8, 15*M_PI/8};
 float xl [xlh_len];
 float xh [xlh_len];
-// Filter specifics
-float h0[] = { 1/sqrt(2), 1/sqrt(2)};
-float h1[] = { -1/sqrt(2), 1/sqrt(2)};
-const int h0_len = 2;
-const int h1_len = 2;
+
 
 // Extra (no need to handle these)
 float x_ext[output_len];
@@ -41,7 +45,7 @@ void loop() {
 
   Serial.println("The final discrete WT: ");
   printArray(final_output);
-  delay(1000);
+  delay(10000);
 }
 
 
