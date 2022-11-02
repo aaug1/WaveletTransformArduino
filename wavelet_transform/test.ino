@@ -13,6 +13,7 @@ int h1_len = 2;
 
 void setup() {
   Serial.begin(9600);
+
 }
 
 void loop() {
@@ -24,5 +25,16 @@ void loop() {
   Serial.println("The final dwt: ");
   printArray(output, x_len);
   delay(5000);
+
+  /* Example code for reading from sensor: */
+  
+  // for (int i = 0; i < x_len; i++) {
+  //   x[i] = analogRead(A0);
+  // }
+  // output = dwt.getDWT(x, x_len, 2);
+  // Serial.println("The final dwt: ");
+  // printArray(output, x_len);
+  // delay(5000);
+  
 
 }

@@ -4,6 +4,14 @@
 
 using namespace std;
 
+/**
+ * @brief Construct a new DWT::DWT object
+ * 
+ * @param h0_in the first filter
+ * @param h1_in the second filter
+ * @param h0_len_in length of the first filter
+ * @param h1_len_in length of the second filter
+ */
 DWT::DWT(float h0_in[], float h1_in[], int h0_len_in, int h1_len_in) {
   h0_len = h0_len_in;
   h0 = new float[h0_len];
@@ -23,6 +31,9 @@ DWT::DWT(float h0_in[], float h1_in[], int h0_len_in, int h1_len_in) {
   temp = new float[1];
 }
 
+/**
+ * @brief Destroy the DWT::DWT object by freeing up memory
+ */
 DWT::~DWT() {
   delete[] h0;
   delete[] h1;
@@ -30,24 +41,32 @@ DWT::~DWT() {
   delete[] temp;
 }
 
+/**
+ * @brief Returns a pointer to the calculated dwt
+ * 
+ * @param input the input signal
+ * @param input_len the input signal length
+ * @param maxlevel number of levels to pass through in DWT
+ * @return float* Assumes the returned pointer is x_len long
+ */
 float* DWT::getDWT(float input[], int input_len, int maxlevel) {
   // Free and reassign memory
   delete[] output;
   output = new float[ext + input_len + ext];
   temp = new float[ext + input_len + ext];
 
-  // mode1(input, input_len);
-  // mode1(input, input_len);
-  //lphdec(input, input_len, 1);
-  // lphdec(input, input_len, 1);
   dwt1d(input, input_len, 2);
-
-
   return output;
 }
 
+/**
+ * @brief Symmetric extension
+ * In MATLAB: x=[fliplr(x(:,1+tb:ext+tb)),x,fliplr(x(:,x_len-ext+1-tb:x_len-tb))];
+ * 
+ * @param x input signal, or portion of signal
+ * @param x_len input signal, or portion of signal, length
+ */
 void DWT::mode1(float* x, int x_len) {
-  // x=[fliplr(x(:,1+tb:ext+tb)),x,fliplr(x(:,x_len-ext+1-tb:x_len-tb))];
   int len = trunc((x_len+1)/2);
   float* left = new float[len]; 
   float* right = new float[len];
@@ -59,12 +78,14 @@ void DWT::mode1(float* x, int x_len) {
   slicing(x, x_len, left, ext, X, Y);
   fliplr(left, ext);
 
+  // create right array
   X = x_len-ext-tb;
   Y = x_len-tb;
   slicing(x, x_len, right, ext, X, Y);
   fliplr(right, ext);
 
   // copy output into a output vector
+  // AKA x=[fliplr(x(:,1+tb:ext+tb)),x,fliplr(x(:,x_len-ext+1-tb:x_len-tb))];
   for (int i = 0; i < ext; i++) {
     temp[i] = left[i];
   }
@@ -81,6 +102,17 @@ void DWT::mode1(float* x, int x_len) {
   delete[] right;
 }
 
+/**
+ * @brief Decomposition of given scaling coefficients into their scaling and wavelet 
+ * parts using a LP PR analysis bank. Sets output = [xl, xh]
+ * 
+ * @param x input scaling coeffs (array [1, n])
+ * @param n length of x
+ * @param mode Extension Mode:
+ *    0 - zero extension 
+ *    1 - symmetric extension
+ *    2 - circular convolution
+ */
 void DWT::lphdec(float* x, int n, int mode) {
   if (mode == 1) {
     mode1(x, n);
@@ -107,6 +139,7 @@ void DWT::lphdec(float* x, int n, int mode) {
   float* xh = new float [len];
   int output_len = n + 2*ext;
 
+  // Calculate xl and xh matrices
   for (int i = 0; i < len; i++) {
     // Slicing
     X = k1-1;
@@ -123,6 +156,7 @@ void DWT::lphdec(float* x, int n, int mode) {
     k2+=2;
   }
 
+  // In MATLAB: x[1:n] = [xl xh]
   for (int i = 0; i < len; i++) {
     output[i] = xl[i];
   }
@@ -137,6 +171,13 @@ void DWT::lphdec(float* x, int n, int mode) {
   delete[] xh;
 }
 
+/**
+ * @brief Forward 1D Discrete Symmetric Biorthogonal Wavelet Transform
+ * 
+ * @param x Input signal
+ * @param x_len Length of input signal
+ * @param maxlevel Number of levels to pass through
+ */
 void DWT::dwt1d(float* x, int x_len, int maxlevel) {
   int n = x_len;
   for (int i = 0; i < x_len; i++) {

@@ -64,18 +64,4 @@ T vectorMultiply(T *(&a), int N, T *(&b), int M) {
   return output;
 }
 
-// template <class T, size_t N, size_t M>
-// T vectorMultiply(vector<T>a, vector<T>b) {
-//   if (N != M) {
-//     cout << "error: Vector sizes must be equal!" << endl;
-//     return -1;
-//   }
-//   T output = 0;
-//   for (int i = 0; i < N; i++) {
-//     output += a[i] * b[i];
-//   }
-//   return output;
-// }
-
-
 #endif
