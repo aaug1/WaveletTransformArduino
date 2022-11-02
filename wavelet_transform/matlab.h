@@ -1,10 +1,12 @@
 #ifndef MATLAB
 #define MATLAB
 
-template <class T, size_t N>
-void printArray(T (&arr)[N]) {
-  for (auto ele : arr) {
-    Serial.print(ele);
+#include "Arduino.h"
+
+template <class T>
+void printArray(T *(&arr), int N) {
+  for (int i=0; i < N; i++) {
+    Serial.print(arr[i]);
     Serial.print(" ");
   }
   Serial.println();
@@ -16,8 +18,8 @@ T remainder(T x, T y) {
   return x - trunc(x / y) * y;
 }
 
-template <class T, size_t arr_len, size_t result_len>
-void slicing(const T (&arr)[arr_len], T (&result)[result_len], int X, int Y) {
+template <class T>
+void slicing(T *(&arr), int arr_len, T *(&result), int result_len, int X, int Y) {
   for (size_t i = 0; i < (Y - X + 1); i++) {
     result[i] = arr[i + X];
   }
@@ -25,8 +27,8 @@ void slicing(const T (&arr)[arr_len], T (&result)[result_len], int X, int Y) {
 
 // MATLAB fliplr function
 // Reverses a vector
-template <class T, size_t x_len>
-void fliplr(T (&x)[x_len]) {
+template <class T>
+void fliplr(T *(&x), int x_len) {
   int j = x_len - 1;
   float temp = 0;
   for (int i = 0; i < (int) x_len / 2; i++) {
@@ -49,10 +51,10 @@ void elementWiseMult(T (&x)[N], U mult) {
 // MATLAB vector multiplication for 1xM and Mx1
 // multiplies elements in a vector
 // returns an int, float, double, etc.
-template <class T, size_t N, size_t M>
-T vectorMultiply(T(&a)[N], T(&b)[M]) {
+template <class T>
+T vectorMultiply(T *(&a), int N, T *(&b), int M) {
   if (N != M) {
-    Serial.println("Vector sizes must be equal!");
+    Serial.println("error: Vector sizes must be equal!");
     return -1;
   }
   T output = 0;
@@ -61,5 +63,19 @@ T vectorMultiply(T(&a)[N], T(&b)[M]) {
   }
   return output;
 }
+
+// template <class T, size_t N, size_t M>
+// T vectorMultiply(vector<T>a, vector<T>b) {
+//   if (N != M) {
+//     cout << "error: Vector sizes must be equal!" << endl;
+//     return -1;
+//   }
+//   T output = 0;
+//   for (int i = 0; i < N; i++) {
+//     output += a[i] * b[i];
+//   }
+//   return output;
+// }
+
 
 #endif
