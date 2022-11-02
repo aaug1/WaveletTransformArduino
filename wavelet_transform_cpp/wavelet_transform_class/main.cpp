@@ -1,5 +1,6 @@
 #include "math.h"
 #include <iostream>
+#include "matlab.h"
 
 using namespace std;
 
@@ -10,23 +11,22 @@ class DWT {
     float* h1;
     int h0_len;
     int h1_len;
-    float* x;
     int x_len;
-    int* output;
+    float* output;
+    int ext;
   
     DWT(float [], float [], int , int );
+    ~DWT();
     float* getDWT(float[], int, int);
     //float* geth0(float[], int, int);
     //float* geth1(float[], int, int);
 
   private:
-    void mode1(float *x, int x_len, float *x_ext, int output_len);
-    void lphdec(float *arr, int lphdec_len, float *output, int output_len, int mode);
+    void mode1(float* x, int x_len);
+    //void lphdec(float *arr, int lphdec_len, float *output, int output_len, int mode);
     void dwt1d();
 
 };
-
-using namespace std;
 
 DWT::DWT(float h0_in[], float h1_in[], int h0_len_in, int h1_len_in) {
   h0_len = h0_len_in;
@@ -41,39 +41,85 @@ DWT::DWT(float h0_in[], float h1_in[], int h0_len_in, int h1_len_in) {
   for (int i = 0; i < h1_len; i++) {
     h1[i] = h1_in[i];
   }
+  ext = trunc( max(h0_len, h1_len)/2.0);
+
+  output = new float[1];
 }
 
-float* DWT::getDWT(float input[], int x_len, int maxlevel) {
-  x = new float[x_len];
-  int ext = trunc((max(h1_len, h0_len))/2.0);
-  float* output = new float[ext + x_len + ext];
-  // Copy over the input signal
+DWT::~DWT() {
+  delete[] h0;
+  delete[] h1;
+  delete[] output;
+}
+
+float* DWT::getDWT(float input[], int input_len, int maxlevel) {
+  // Free and reassign memory
+  delete[] output;
+  output = new float[ext + x_len + ext];
+
+  mode1(input, input_len);
+  printArray2(input, input_len);
+  
+  return output;
+}
+
+void DWT::mode1(float* x, int x_len) {
+  // x=[fliplr(x(:,1+tb:ext+tb)),x,fliplr(x(:,x_len-ext+1-tb:x_len-tb))];
+  float* left = new float[3]; 
+  float* right = new float[3];
+  int tb = remainder(h0_len, 2);
+
+  // create left array
+  int X = tb;
+  int Y = ext+tb;
+  slicing(x, x_len, left, ext, X, Y);
+  fliplr(left, ext);
+
+  X = x_len-ext-tb;
+  Y = x_len-tb;
+  slicing(x, x_len, right, ext, X, Y);
+  fliplr(right, ext);
+
+  // copy output into a output vector
+  for (int i = 0; i < 3; i++) {
+    output[i] = left[i];
+  }
+ 
   for (int i = 0; i < x_len; i++) {
-    output[i] = input[i];
+    output[i+ext] = x[i];
+  }
+  
+  for (int i = 0; i < ext; i++) {
+    output[i+x_len+ext] = right[i];
   }
 
-
-  
-
-  return output;
+  delete[] left;
+  delete[] right;
 }
 
 
 int main() {
-  float h0[] = {0, 1};
-  float h1[] = {0, 1};
-  float x[] = {0,1,2};
+  float val = 1/sqrt(2);
+  float h0[] = {val, val};
+  float h1[] = {-val, val};
+  float x[] = {1,2,3,4,5};
+  int h0_len = 2;
+  int h1_len = 2;
+  int x_len = 5;
+  const int ext = trunc( max(h0_len, h1_len)/2.0);
+  float* output;
 
-  DWT dwt = DWT(h0, h1, 2,2);
+  DWT dwt = DWT(h0, h1,h0_len,h1_len);
 
-  float* output = dwt.getDWT(x, 3, 2);
+  output = dwt.getDWT(x, 5, 2);
 
-  cout << dwt.h0_len << endl;
-  cout << x << endl;
+  // cout << dwt.h0_len << endl;
+  // cout << x << endl;
 
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < x_len + 2*ext; i++) {
     cout << output[i] << endl;
-
   }
+
+
   
 }
