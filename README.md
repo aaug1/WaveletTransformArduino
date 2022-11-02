@@ -1,7 +1,8 @@
 
 # Wavelet Transforms:
 Author: Aidan Aug
-Date: Oct 29, 2022
+Date Created: Oct 29, 2022
+Date Modified: Nov 2, 2022
 
 ## Description:
 
@@ -15,11 +16,18 @@ The implentation makes several assumptions about the input signal:
 
 Credit to Arik Slepyan for the project proposal!
 
+## TODO:
+1. Implement dwt2D
+2. Implement dwt3D
+
 ---
 ## Additional Notes: 
 
 ### Folder descriptions
-Please download the wavelet_transform_all repository to run the code. The other file contains code written in PlatformIO, but was used primarily for testing purposes.
+Please download the **wavelet_transform** repository to run the code. An example in test.ino is given for how to run the code.
+
+
+The other file contains code written in PlatformIO, but was used primarily for testing purposes.
 
 ### Development notes for the future!
 1. **Dynamic Memory Allocation** It is important to remember that smaller programmable devices such as the Arduino or Teensy have limited memory. Dynamically allocating too much memory, i.e., through a vector data structure, can lead to buggy performance.
