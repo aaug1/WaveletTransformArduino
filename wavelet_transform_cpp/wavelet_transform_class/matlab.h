@@ -1,15 +1,19 @@
 #ifndef MATLAB
 #define MATLAB
 
-#include "Arduino.h"
+#include <iostream>
+#include <cstddef>
+#include <cmath>
+#include <vector>
+
+using namespace std;
 
 template <class T>
 void printArray(T *(&arr), int N) {
   for (int i=0; i < N; i++) {
-    Serial.print(arr[i]);
-    Serial.print(" ");
+    cout << arr[i] << " ";
   }
-  Serial.println();
+  cout << endl;
 }
 
 // MATLAB rem function
@@ -54,7 +58,7 @@ void elementWiseMult(T (&x)[N], U mult) {
 template <class T>
 T vectorMultiply(T *(&a), int N, T *(&b), int M) {
   if (N != M) {
-    Serial.println("error: Vector sizes must be equal!");
+    cout << "error: Vector sizes must be equal!" << endl;
     return -1;
   }
   T output = 0;
