@@ -14,8 +14,7 @@ class DWT {
     int x_len;
     float* output;
     int ext;
-    float* xl;
-    float* xh;
+    float* temp;
   
     DWT(float [], float [], int , int );
     ~DWT();
@@ -26,7 +25,7 @@ class DWT {
   private:
     void mode1(float* input, int x_len);
     void lphdec(float* x, int n, int mode);
-    void dwt1d();
+    void dwt1d(float*x, int n, int maxlevel);
 
 };
 
@@ -46,21 +45,28 @@ DWT::DWT(float h0_in[], float h1_in[], int h0_len_in, int h1_len_in) {
   ext = trunc( max(h0_len, h1_len)/2.0);
 
   output = new float[1];
+  temp = new float[1];
 }
 
 DWT::~DWT() {
   delete[] h0;
   delete[] h1;
   delete[] output;
+  delete[] temp;
 }
 
 float* DWT::getDWT(float input[], int input_len, int maxlevel) {
   // Free and reassign memory
   delete[] output;
   output = new float[ext + input_len + ext];
+  temp = new float[ext + input_len + ext];
 
-  mode1(input, input_len);
-  lphdec(input, input_len, 1);
+  // mode1(input, input_len);
+  // mode1(input, input_len);
+  //lphdec(input, input_len, 1);
+  // lphdec(input, input_len, 1);
+  dwt1d(input, input_len, 2);
+
 
   return output;
 }
@@ -85,15 +91,15 @@ void DWT::mode1(float* x, int x_len) {
 
   // copy output into a output vector
   for (int i = 0; i < ext; i++) {
-    output[i] = left[i];
+    temp[i] = left[i];
   }
  
   for (int i = 0; i < x_len; i++) {
-    output[i+ext] = x[i];
+    temp[i+ext] = x[i];
   }
   
   for (int i = 0; i < ext; i++) {
-    output[i+x_len+ext] = right[i];
+    temp[i+x_len+ext] = right[i];
   }
 
   delete[] left;
@@ -130,10 +136,10 @@ void DWT::lphdec(float* x, int n, int mode) {
     // Slicing
     X = k1-1;
     Y = k1+h0_len-1;
-    slicing(output, output_len, xl_i, h0_len, X, Y);
+    slicing(temp, output_len, xl_i, h0_len, X, Y);
     X = k2-1;
     Y = k2+h1_len-1;
-    slicing(output, output_len, xh_i, h1_len, X, Y);
+    slicing(temp, output_len, xh_i, h1_len, X, Y);
 
     // Updating values
     xl[i] = vectorMultiply(xl_i, h0_len, h0, h0_len);
@@ -156,21 +162,35 @@ void DWT::lphdec(float* x, int n, int mode) {
   delete[] xh;
 }
 
+void DWT::dwt1d(float* x, int x_len, int maxlevel) {
+  int n = x_len;
+  for (int i = 0; i < x_len; i++) {
+    output[i] = x[i];
+  }
+
+  for (int i = 0; i < 2; i++) {
+    lphdec(output, n, 1);
+    n = n/2;
+  }
+}
+
 
 int main() {
   float val = 1/sqrt(2);
   float h0[] = {val, val};
   float h1[] = {-val, val};
-  float x[] = {1,2,3,4,5,6,7,8,9,10};
+  //float x[] = {1,2,3,4,5,6,7,8,9,10};
+  int x_len = 16;
+  float x[] = { 1, 2, 3, 4, 5, 6, 7, 8,9, 10, 11, 12, 13, 14, 15, 16};
   int h0_len = 2;
   int h1_len = 2;
-  int x_len = 10;
+  
   const int ext = trunc( max(h0_len, h1_len)/2.0);
   float* output;
 
   DWT dwt = DWT(h0, h1,h0_len,h1_len);
 
-  output = dwt.getDWT(x, x_len, 1);
+  output = dwt.getDWT(x, x_len, 2);
 
   // cout << dwt.h0_len << endl;
   // cout << x << endl;
@@ -178,4 +198,5 @@ int main() {
   for (int i = 0; i < x_len; i++) {
     cout << output[i] << endl;
   }
+
 }
