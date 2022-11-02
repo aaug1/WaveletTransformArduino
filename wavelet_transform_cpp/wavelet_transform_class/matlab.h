@@ -8,10 +8,10 @@
 
 using namespace std;
 
-template <class T, size_t N>
-void printArray(T (&arr)[N]) {
-  for (auto ele : arr) {
-    cout << ele << " ";
+template <class T>
+void printArray(T *(&arr), int N) {
+  for (int i=0; i < N; i++) {
+    cout << arr[i] << " ";
   }
   cout << endl;
 }
